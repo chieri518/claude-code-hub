@@ -1,0 +1,17 @@
+# Tracked upstream sources for the ingestion agent.
+#
+# Schema:
+#   sources:
+#     - id:        short stable identifier (kebab-case)
+#       url:       canonical URL to fetch
+#       type:      one of: docs | changelog | release-notes
+#       last_hash: content hash from the most recent successful fetch
+#                  (populated by the ingestion agent; leave empty initially)
+#
+# Example (uncomment and edit to enable):
+#   - id: claude-code-releases
+#     url: https://github.com/anthropics/claude-code/releases.atom
+#     type: release-notes
+#     last_hash: ""
+
+sources: []

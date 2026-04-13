@@ -1,0 +1,13 @@
+node_modules/
+
+.drafts/*
+!.drafts/.gitkeep
+
+dist/*
+!dist/.gitkeep
+
+.env
+.env.local
+
+*.log
+.DS_Store
