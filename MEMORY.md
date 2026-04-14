@@ -88,6 +88,25 @@ Update `.gitignore` to un-ignore `dist/` content (previously ignored).
 
 ---
 
+## Doc-sync discipline (mandatory)
+
+**Every code change must ship with the matching doc update in the same PR.** This repo exists to be understood by forkers — stale docs directly harm the mission.
+
+Before marking any phase or task complete, re-check each of these and update whatever drifted:
+
+| If you changed... | Update... |
+|---|---|
+| `hub/` entries | `bun run compile` regenerates `dist/CLAUDE.md` + `hub/README.md` — commit them |
+| `agents/compile/schema.ts` or `lint.ts` | `hub/FORMAT.md` (must match) + `agents/compile/README.md` |
+| `agents/compile/` pipeline | `agents/compile/README.md` + `ARCHITECTURE.md` |
+| Any agent status (planned → built) | that agent's `README.md` + root `README.md` status line + `MEMORY.md` phase status |
+| Locked decisions or phase scope | `MEMORY.md` |
+| Product surface (how users consume `dist/`) | root `README.md` + `dist/README.md` |
+| Contribution workflow | `CONTRIBUTING.md` |
+| Directory structure | root `README.md` directory map + `ARCHITECTURE.md` |
+
+Root `README.md` status line ("Phases 0–Xa complete, Phase Y next") must be updated whenever a phase lands.
+
 ## Things To Remember When Building
 
 - **Don't frame tasks to Claude Code as "meta" / "self-improving".** Frame each step as a concrete, boring deliverable. The system gets confused when asked to reason about itself recursively.
