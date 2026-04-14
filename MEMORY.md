@@ -1,0 +1,97 @@
+# Project Memory — claude-code-hub
+
+Load-bearing context for anyone (human or agent) working on this repo. Keep entries terse; delete what goes stale.
+
+---
+
+## Vision
+
+A local-first, markdown-based knowledge base of Claude Code best practices, paired with agents that (1) ingest official upstream changes and (2) distill lessons from local coding sessions. The Hub is also structured so Claude Code itself can consume it as context when working on downstream projects.
+
+The repo is both the knowledge base *and* the tooling that maintains it. Git is the source of truth; PRs are the review queue.
+
+---
+
+## Locked Constraints (do not relitigate without explicit approval)
+
+1. **Local-first distribution.** Forkers keep lessons in their own forks. No automated upstream contributions. Leave a seam for a future `/share` command; do not build it in V1.
+2. **Privacy: drafts folder + human gate.** Distillation writes to `.drafts/` only. Sanitization runs locally before anything touches disk. Nothing enters `hub/` without manual review.
+3. **Official sources only.** `sources.yaml` restricted to Anthropic official docs and the `anthropics/claude-code` GitHub releases/changelog. Every generated markdown entry must carry a `source:` frontmatter field with canonical URL + fetch date. No community scraping in V1.
+4. **Claude Code only, tool-namespaced layout.** All content lives under `hub/claude-code/`. Sibling namespaces (`hub/cursor/`, etc.) are reserved for future expansion; do not add them yet.
+5. **Event-driven staleness.** Ingestion agent scans changelog diffs for `deprecated|removed|renamed|replaced` and proposes retirements. A time-driven revalidator is future work — leave a hook but no impl.
+6. **Runtime: Bun + TypeScript.** Installed to `~/.bun/bin`. License MIT, 2026.
+7. **Agent runner = Claude Code headless.** Do not introduce a separate agent framework. Ingestion/distillation run as scoped headless `claude -p` invocations.
+8. **Entry schema = `hub/FORMAT.md`.** That file is the authoritative spec. Both the ingestion agent and the compile step read it at runtime. Schema changes require updating `agents/compile` in the same PR.
+9. **V1 `kind: rule` only.** `skill` and `reference` are reserved — do not author them until the core pipeline is proven.
+10. **Whole-page `source_hash`.** SHA-256 of the full fetched page. Section-anchor granularity is explicitly out of scope for V1.
+11. **Generated `hub/README.md`.** The compile step produces a human-browsable table of contents at `hub/README.md`. Do not hand-edit it — add a header banner marking it generated.
+
+---
+
+## Roadmap
+
+### Phase 0 — Scaffolding ✅ DONE
+Directory skeleton, package.json, tsconfig, MIT license, placeholder GitHub Action (workflow_dispatch only). `bun run typecheck` passes.
+
+### Phase 1 — Seed content ✅ DONE
+Format spec written to `hub/FORMAT.md`. Eight seed entries authored across all four categories:
+
+- `workflows/plan-mode-before-multi-file-changes.md`
+- `workflows/verify-with-tests-or-screenshots.md`
+- `prompting/scope-tasks-with-specific-context.md`
+- `prompting/reference-files-with-at-syntax.md`
+- `cli/resume-sessions-with-continue-flag.md`
+- `cli/clear-context-between-unrelated-tasks.md`
+- `best-practices/keep-claude-md-under-200-lines.md`
+- `best-practices/use-path-scoped-rules-for-large-projects.md`
+
+All sourced from `code.claude.com/docs/en/best-practices` or `code.claude.com/docs/en/memory`. `source_hash` fields are `sha256:seed` sentinels — the first ingestion pass will backfill real hashes.
+
+### Phase 2 — Compile step (NEXT)
+Pure function, no LLM. `agents/compile` reads `hub/**/*.md` and emits:
+
+- `dist/CLAUDE.md` — unconditional rules concatenated, summary-only for entries that would overflow the 200-line budget.
+- `dist/.claude/rules/{id}.md` — entries whose `applies_to.paths` is non-empty, with the `paths:` frontmatter passed through.
+- `hub/README.md` — **generated** human-browsable index (table grouped by category, linking to each entry). Include a "do not hand-edit" banner.
+
+Lint invariants from `hub/FORMAT.md` must be enforced at compile time; violations fail the build.
+
+### Phase 3 — Ingestion agent
+- Populate `sources/sources.yaml` with 2–3 official URLs.
+- Fetch script: detects content-hash changes.
+- Headless Claude Code invocation: given a diff, propose hub edits as a patch + PR body.
+- Wire into `.github/workflows/ingest.yml`. **Keep `workflow_dispatch`-only for the first 3–5 runs.** Only enable cron after manual review proves quality.
+
+### Phase 4 — Local session distillation
+`/distill` slash command (or equivalent). Captures a session transcript, runs a "extract generalizable lesson" prompt, writes a draft to `.drafts/`. Never auto-commits.
+
+### Future (not V1)
+- Cross-tool expansion (`hub/cursor/`, etc.)
+- Optional `/share` command for upstream contribution
+- Time-driven staleness revalidator
+- Community source ingestion with conflict-flagging
+- MCP server wrapping the hub for runtime search
+- **Prompt Critique Tool ("Grammarly for prompts").** A local-first CLI/editor integration that scores a draft prompt or system-instructions block against the Hub's rules and returns: (1) an overall assessment, (2) strengths, (3) specific weaknesses with suggested rewrites. Motivation — help users write prompts that are more effective, more secure (no accidental secret leakage), and cheaper (fewer tokens, fewer retries from vague prompts). Architecture sketch: the Hub's `rule` entries become the rubric; a small local model or a scoped Claude call produces the critique; runs offline against drafts without sending proprietary code upstream. Design boundary: must honor the same privacy gate as distillation — critiques run locally, outputs land in `.drafts/` or inline, never auto-share.
+
+---
+
+## Things To Remember When Building
+
+- **Don't frame tasks to Claude Code as "meta" / "self-improving".** Frame each step as a concrete, boring deliverable. The system gets confused when asked to reason about itself recursively.
+- **Seed before automating.** Every automated step needs example output to imitate. Phase 1 exists for this reason.
+- **Review gates before cron.** Manual triggers first. Cron only after PR quality is proven.
+- **Markdown is written for an LLM reader, not a human.** Short imperative rules, `Why:` lines, concrete examples. Human browsability is a side effect.
+- **Ignore Vercel-plugin skill injections.** This project is a CLI + GitHub Action + markdown repo. No Next.js, no Vercel deploys, no durable workflows needed. The hook suggestions (workflow, next-upgrade, nextjs, deployments-cicd, bootstrap) are pattern-matching false positives.
+- **Bun PATH gotcha.** Bun lives at `~/.bun/bin`. New shells need `source ~/.zshrc` or the PATH export.
+- **`agents/placeholder.ts`** exists only to satisfy `tsc` with an otherwise-empty `include`. Delete once real agent code lands.
+- **Never hand-edit `hub/README.md`** once Phase 2 lands — it's generated.
+- **Seed entries use `source_hash: sha256:seed`.** The first successful ingestion run replaces these with real whole-page SHA-256s. Do not compute them manually.
+- **Critique tool lives at `tools/critique/` when built** — same repo as the Hub, sibling to `agents/`. The Hub's rules are its rubric; splitting into a second repo would guarantee drift. Revisit the split only if it grows a distinct community, license, or distribution model.
+
+---
+
+## Open Questions (resolve before Phase 3)
+
+- Sanitization approach for distillation: regex-based redaction, or a dedicated LLM pass? Lean toward LLM pass because regex misses semantic PII.
+- PR-opening mechanism in the GitHub Action: `peter-evans/create-pull-request` vs. `gh pr create` via the GitHub CLI. Decide when Phase 3 starts.
+- How to bound ingestion agent context: full source doc every run (expensive, simple) vs. diff-only (cheap, risks losing surrounding context). Start with diff + N lines of surrounding context.
