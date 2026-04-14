@@ -7,7 +7,9 @@
     "bun": ">=1.1.0"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "compile": "bun run agents/compile/index.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

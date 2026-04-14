@@ -3,8 +3,8 @@ node_modules/
 .drafts/*
 !.drafts/.gitkeep
 
-dist/*
-!dist/.gitkeep
+# dist/ is committed — it is the product of this repo.
+# CI enforces sync with hub/. Do not hand-edit.
 
 .env
 .env.local

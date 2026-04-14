@@ -47,14 +47,27 @@ Format spec written to `hub/FORMAT.md`. Eight seed entries authored across all f
 
 All sourced from `code.claude.com/docs/en/best-practices` or `code.claude.com/docs/en/memory`. `source_hash` fields are `sha256:seed` sentinels — the first ingestion pass will backfill real hashes.
 
-### Phase 2 — Compile step (NEXT)
-Pure function, no LLM. `agents/compile` reads `hub/**/*.md` and emits:
+### Phase 2 — Compile step (IN PROGRESS)
+Pure function, no LLM, no network calls. Split into two PRs:
 
-- `dist/CLAUDE.md` — unconditional rules concatenated, summary-only for entries that would overflow the 200-line budget.
-- `dist/.claude/rules/{id}.md` — entries whose `applies_to.paths` is non-empty, with the `paths:` frontmatter passed through.
-- `hub/README.md` — **generated** human-browsable index (table grouped by category, linking to each entry). Include a "do not hand-edit" banner.
+**Phase 2a (current):** `parse + lint + emit-claude-md + emit-readme`. Covers the 80% case — unconditional rules only.
+**Phase 2b:** `emit-rules` for path-scoped output at `dist/.claude/rules/{id}.md`.
 
-Lint invariants from `hub/FORMAT.md` must be enforced at compile time; violations fail the build.
+Locked decisions for Phase 2:
+
+- **Budget:** hard cap at 200 lines for `dist/CLAUDE.md`. Overflow fails the build — no auto-demotion. Forces authoring-time pruning.
+- **No network.** Compile is deterministic and offline-capable. URL liveness lives in a later async linter.
+- **README: MVP table only** (`id | title | summary`). No timestamps, no badges — zero churn fields.
+- **`dist/` is committed.** The compiled artifact is the product; forkers must be able to grab `dist/CLAUDE.md` from the GitHub UI without running a build. A CI check will later enforce that `dist/` is in sync with `hub/`.
+- **Failure modes:**
+  - `status: current` → full emit.
+  - `status: deprecated` → emit a one-line warning pointing to `supersedes`.
+  - `status: superseded` → skip silently.
+  - Invalid frontmatter → fail the whole build; no partial emit.
+- **Tests:** Bun snapshot tests under `test/fixtures/hub-sample/` and `test/snapshots/`. Regenerate deliberately when FORMAT changes.
+- **No LLM, no git ops, no file watching.** `bun run compile` is a one-shot CLI.
+
+Update `.gitignore` to un-ignore `dist/` content (previously ignored).
 
 ### Phase 3 — Ingestion agent
 - Populate `sources/sources.yaml` with 2–3 official URLs.

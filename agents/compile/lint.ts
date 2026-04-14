@@ -1,0 +1,65 @@
+import { ANTHROPIC_HOSTS, type Entry } from './schema';
+
+export type Issue = { filepath: string; message: string };
+
+const SEE_ALSO_LINK_RE = /\[[^\]]+\]\((\.\.?\/[^)]+\.md)\)/g;
+
+export function lint(entries: Entry[]): Issue[] {
+  const issues: Issue[] = [];
+  const ids = new Set<string>();
+  const idToEntry = new Map<string, Entry>();
+
+  for (const e of entries) {
+    if (ids.has(e.id)) {
+      issues.push({ filepath: e.filepath, message: `duplicate id: ${e.id}` });
+    }
+    ids.add(e.id);
+    idToEntry.set(e.id, e);
+  }
+
+  for (const e of entries) {
+    let host: string;
+    try {
+      host = new URL(e.source.url).hostname;
+    } catch {
+      issues.push({ filepath: e.filepath, message: `source.url is not a valid URL` });
+      continue;
+    }
+    const githubOk = host === 'github.com' && /\/anthropics\//.test(e.source.url);
+    if (!ANTHROPIC_HOSTS.has(host) && !githubOk) {
+      issues.push({
+        filepath: e.filepath,
+        message: `source.url host "${host}" is not in the Anthropic allowlist`,
+      });
+    }
+
+    if (e.status === 'superseded' && e.supersedes.length === 0) {
+      issues.push({
+        filepath: e.filepath,
+        message: `status=superseded requires a non-empty supersedes[]`,
+      });
+    }
+
+    for (const ref of e.supersedes) {
+      if (!ids.has(ref)) {
+        issues.push({
+          filepath: e.filepath,
+          message: `supersedes references unknown id: ${ref}`,
+        });
+      }
+    }
+
+    for (const match of e.body.matchAll(SEE_ALSO_LINK_RE)) {
+      const target = match[1];
+      const targetId = target.replace(/^.*\//, '').replace(/\.md$/, '');
+      if (!ids.has(targetId)) {
+        issues.push({
+          filepath: e.filepath,
+          message: `See also link to unknown entry: ${target}`,
+        });
+      }
+    }
+  }
+
+  return issues;
+}
