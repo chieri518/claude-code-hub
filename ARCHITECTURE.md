@@ -29,7 +29,8 @@ claude-code-hub/
 ├── agents/
 │   ├── compile/                # Pure function: hub/ → dist/ + hub/README.md
 │   ├── ingest/                 # LLM agent: upstream changes → PRs
-│   └── distill/                # LLM agent: session logs → .drafts/
+│   ├── distill/                # LLM agent: session logs → .drafts/
+│   └── lint-urls/              # Pure function: source URLs → GitHub issue
 ├── tools/                      # User-facing tooling (post-V1)
 │   └── critique/               #   Future: "Grammarly for prompts"
 ├── dist/                       # Generated artifacts (committed)
@@ -47,6 +48,7 @@ claude-code-hub/
 | Agent | When it runs | Reads | Writes | LLM? |
 |---|---|---|---|---|
 | **compile** | On demand (`bun run compile`) and in CI | `hub/**/*.md`, `hub/FORMAT.md` | `dist/`, `hub/README.md` | No |
+| **lint-urls** | Weekly cron + `bun run lint:urls` | `hub/**/*.md` (source URLs) | GitHub issue state only (rolling "Broken source URLs") | No |
 | **ingest** | GitHub Action, manual then cron | `sources/sources.yaml`, upstream URLs, `hub/FORMAT.md`, `hub/**/*.md` | `sources/sources.yaml` (hashes), `.drafts/ingest/{run-id}/` (Phase 3a); PR modifying `hub/**/*.md` (Phase 3b) | Yes, Phase 3b only (headless `claude -p` via `CLAUDE_CODE_OAUTH_TOKEN`) |
 | **distill** | User-invoked (`bun run distill` or `/distill`) | Local Claude Code session transcript (`~/.claude/projects/*/*.jsonl`), `hub/FORMAT.md`, existing entries | `.drafts/distill/*.md` (never `hub/` directly), max 3 per run | Yes (headless `claude -p`, single-pass sanitize + extract) |
 

@@ -1,0 +1,59 @@
+name: url-liveness
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'   # Mondays 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Run URL liveness check
+        id: check
+        run: |
+          set +e
+          bun run lint:urls --ci > body.txt
+          code=$?
+          echo "broken=$([ $code -ne 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          cat body.txt
+          exit 0
+
+      - name: Open or update rolling issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BROKEN: ${{ steps.check.outputs.broken }}
+        run: |
+          set -e
+          title="Broken source URLs"
+          body=$(cat body.txt)
+          existing=$(gh issue list --state open --label broken-link --search "$title in:title" --json number --jq '.[0].number')
+          if [ "$BROKEN" = "true" ]; then
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" --body "$body"
+              echo "Updated issue #$existing"
+            else
+              gh issue create --title "$title" --label broken-link --body "$body"
+            fi
+          else
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" --comment "All source URLs healthy again."
+              echo "Closed issue #$existing"
+            else
+              echo "No broken links; no open issue to close."
+            fi
+          fi

@@ -1,5 +1,8 @@
 # claude-code-hub
 
+[![ci](https://github.com/chieri518/claude-code-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/chieri518/claude-code-hub/actions/workflows/ci.yml)
+[![url-liveness](https://github.com/chieri518/claude-code-hub/actions/workflows/url-liveness.yml/badge.svg)](https://github.com/chieri518/claude-code-hub/actions/workflows/url-liveness.yml)
+
 A local-first, markdown-based knowledge base of Claude Code best practices — plus a small set of agents that keep it up to date from official Anthropic sources.
 
 ## What you get
@@ -67,7 +70,7 @@ Commit the regenerated `dist/CLAUDE.md` and `hub/README.md` alongside any change
 
 ## Status
 
-V1 complete. Phases 0–4 shipped: scaffolding, seed content, compile step, ingestion detection + LLM drafting workflow, and local session distillation. Phase 5 (CI quality gates) next.
+V1 complete. Phases 0–5 shipped: scaffolding, seed content, compile step, ingestion detection + LLM drafting workflow, local session distillation, and CI quality gates (dist-sync + weekly URL liveness). Phase 6 (contributor ergonomics) next.
 
 ## License
 

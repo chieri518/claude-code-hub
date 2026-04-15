@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Compile
+        run: bun run compile
+
+      - name: Test
+        run: bun test
+
+      - name: Verify dist/ and hub/README.md are in sync
+        run: |
+          if ! git diff --exit-code dist/ hub/README.md; then
+            echo "::error::dist/ or hub/README.md is out of sync with hub/. Run 'bun run compile' locally and commit the result." >&2
+            exit 1
+          fi

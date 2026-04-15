@@ -27,7 +27,7 @@ Thanks for considering a contribution. The Hub is maintained to be lightweight, 
    bun run compile
    bun test
    ```
-   All four must succeed. `bun run compile` regenerates `dist/CLAUDE.md` and `hub/README.md` — commit those changes alongside your source change.
+   All four must succeed. `bun run compile` regenerates `dist/CLAUDE.md` and `hub/README.md` — commit those changes alongside your source change. CI will fail the PR if they drift from source.
 
 ## Authoring a rule
 

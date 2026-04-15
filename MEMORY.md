@@ -108,11 +108,12 @@ Locked Phase 3 decisions:
 - Single-pass design: sanitization + extraction in one `claude -p` call. Cap: 3 drafts per run.
 - Writes only to `.drafts/distill/*.md`. Never touches `hub/`.
 
-### Phase 5 — Quality gates (NEXT)
+### Phase 5 — Quality gates ✅ DONE
 Two CI checks to make the public repo feel trustworthy as contributors arrive.
-- **dist-sync check** — PR workflow runs `bun run compile` and fails if `dist/CLAUDE.md` or `hub/README.md` would change. Forces contributors to regenerate artifacts.
-- **URL liveness linter** — `agents/lint-urls/` on weekly cron. HEAD-requests every entry's `source.url`; on dead links, opens an **issue** (not a PR) listing them. Separate cadence from `ingest`.
-- Status badges in root README.
+- **dist-sync check** (`.github/workflows/ci.yml`) — runs typecheck + compile + test on every PR and main push, then `git diff --exit-code dist/ hub/README.md` to fail when artifacts drift from source.
+- **URL liveness linter** (`agents/lint-urls/` + `.github/workflows/url-liveness.yml`) — weekly Monday cron. HEAD-requests every non-superseded entry's `source.url`, deduplicating shared URLs. Opens or updates a single rolling issue titled "Broken source URLs" (label: `broken-link`) via the built-in `GITHUB_TOKEN`; closes it when all links recover. Also runnable locally via `bun run lint:urls`.
+- Tests: mocked `HeadFn`, zero network cost (6 new tests, 32 total).
+- Status badges in root README pointing at both workflows.
 
 ### Phase 6 — Contributor ergonomics
 Target: a stranger can propose a rule in <10 minutes without reading the full codebase.
