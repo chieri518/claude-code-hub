@@ -14,8 +14,8 @@ source:
   url: https://code.claude.com/docs/en/best-practices#resume-conversations
   title: Best Practices for Claude Code — Resume conversations
   publisher: Anthropic
-  fetched: 2026-04-13
-  source_hash: sha256:seed
+  fetched: 2026-04-15
+  source_hash: sha256:0b0a5d2b1d1478e49cb8476ef4780a921c14c4531a619bfbc53ceb18218088a6
 status: current
 supersedes: []
 ---

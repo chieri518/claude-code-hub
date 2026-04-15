@@ -14,8 +14,8 @@ source:
   url: https://code.claude.com/docs/en/memory#write-effective-instructions
   title: How Claude remembers your project — Write effective instructions
   publisher: Anthropic
-  fetched: 2026-04-13
-  source_hash: sha256:seed
+  fetched: 2026-04-15
+  source_hash: sha256:9a370491906a0dd90e8822a1b0edb7a9573f6490e27834758d24f93036f5487f
 status: current
 supersedes: []
 ---
