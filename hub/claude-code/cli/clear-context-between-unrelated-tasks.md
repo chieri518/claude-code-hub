@@ -3,7 +3,7 @@ id: clear-context-between-unrelated-tasks
 title: Run /clear between unrelated tasks
 kind: rule
 category: cli
-tags: [cli, context-management, performance]
+tags: [context]
 applies_to:
   scope: project
   paths: []

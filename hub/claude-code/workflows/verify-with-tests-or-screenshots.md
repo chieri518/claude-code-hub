@@ -3,7 +3,7 @@ id: verify-with-tests-or-screenshots
 title: Give Claude a way to verify its own work
 kind: rule
 category: workflows
-tags: [verification, tests, feedback-loop]
+tags: [verification]
 applies_to:
   scope: project
   paths: []

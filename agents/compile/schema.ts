@@ -1,4 +1,4 @@
-export type Category = 'prompting' | 'cli' | 'workflows' | 'best-practices';
+export type Category = 'prompting' | 'cli' | 'workflows' | 'memory-management';
 export type Scope = 'project' | 'user' | 'managed';
 export type Kind = 'rule';
 export type Status = 'current' | 'deprecated' | 'superseded';
@@ -28,7 +28,7 @@ export const CATEGORIES: readonly Category[] = [
   'prompting',
   'cli',
   'workflows',
-  'best-practices',
+  'memory-management',
 ] as const;
 
 export const ANTHROPIC_HOSTS = new Set([

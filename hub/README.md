@@ -26,9 +26,9 @@ This is a human-browsable index of the knowledge base. The entries themselves li
 | [`plan-mode-before-multi-file-changes`](./claude-code/workflows/plan-mode-before-multi-file-changes.md) | Use Plan Mode before multi-file changes | Enter Plan Mode for any change that spans multiple files or unfamiliar code; skip it when the diff fits in one sentence. |
 | [`verify-with-tests-or-screenshots`](./claude-code/workflows/verify-with-tests-or-screenshots.md) | Give Claude a way to verify its own work | Always provide an automated check (tests, linter, expected output, screenshot compare) so Claude can confirm its work without relying on you as the sole loop. |
 
-## Best Practices
+## Memory Management
 
 | ID | Title | Summary |
 | --- | --- | --- |
-| [`keep-claude-md-under-200-lines`](./claude-code/best-practices/keep-claude-md-under-200-lines.md) | Keep CLAUDE.md under 200 lines | Target under 200 lines per CLAUDE.md; longer files burn context and drop in adherence — split overflow into `.claude/rules/` or @-imported files. |
-| [`use-path-scoped-rules-for-large-projects`](./claude-code/best-practices/use-path-scoped-rules-for-large-projects.md) | Use path-scoped .claude/rules/ files in large projects | For rules that only apply to certain files, put them in `.claude/rules/*.md` with a `paths:` glob frontmatter — they load only when relevant. |
+| [`keep-claude-md-under-200-lines`](./claude-code/memory-management/keep-claude-md-under-200-lines.md) | Keep CLAUDE.md under 200 lines | Target under 200 lines per CLAUDE.md; longer files burn context and drop in adherence — split overflow into `.claude/rules/` or @-imported files. |
+| [`use-path-scoped-rules-for-large-projects`](./claude-code/memory-management/use-path-scoped-rules-for-large-projects.md) | Use path-scoped .claude/rules/ files in large projects | For rules that only apply to certain files, put them in `.claude/rules/*.md` with a `paths:` glob frontmatter — they load only when relevant. |

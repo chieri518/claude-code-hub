@@ -108,6 +108,36 @@ Locked Phase 3 decisions:
 - Single-pass design: sanitization + extraction in one `claude -p` call. Cap: 3 drafts per run.
 - Writes only to `.drafts/distill/*.md`. Never touches `hub/`.
 
+### Phase 5 — Quality gates (NEXT)
+Two CI checks to make the public repo feel trustworthy as contributors arrive.
+- **dist-sync check** — PR workflow runs `bun run compile` and fails if `dist/CLAUDE.md` or `hub/README.md` would change. Forces contributors to regenerate artifacts.
+- **URL liveness linter** — `agents/lint-urls/` on weekly cron. HEAD-requests every entry's `source.url`; on dead links, opens an **issue** (not a PR) listing them. Separate cadence from `ingest`.
+- Status badges in root README.
+
+### Phase 6 — Contributor ergonomics
+Target: a stranger can propose a rule in <10 minutes without reading the full codebase.
+- `.github/ISSUE_TEMPLATE/`: propose-a-rule, report-broken-source, suggest-improvement — each pre-fills FORMAT fields.
+- `.github/pull_request_template.md`: mirrors CONTRIBUTING.md checklist.
+- `bun run new-rule <id>` — scaffolds an entry with frontmatter pre-filled.
+- Above-the-fold README polish with a 30-sec "what + why" + gif/screenshot.
+
+### Phase 7 — Content growth to ~50–100 rules
+Tooling to grow without quality drift.
+- Curation cadence: 3–5 new rules/month, bi-weekly deprecation review.
+- Rule-density linter: flag `summary` > 180 chars, body > 150 lines, missing examples.
+- Tag-based grouping in `hub/README.md` (second view alongside category).
+- New categories emerge from content — no speculative empty dirs.
+
+### Phase 8 — Prompt Critique Tool (`tools/critique/`)
+Separate brainstorm pending. Placeholder: CLI that scores a draft prompt against Hub rules, returns a rubric-style critique. Honors the same privacy gate as distillation.
+
+### Locked post-MVP decisions
+- **Tag vocabulary (V1, controlled, 12 tags):** `context`, `memory`, `planning`, `verification`, `tools`, `subagents`, `hooks`, `mcp`, `slash-commands`, `permissions`, `cost`, `git`. See `hub/FORMAT.md` for the authoritative table. Lint enforces membership + 1–2 tags per entry.
+- **Category split (2026-04-15):** `best-practices/` renamed to `memory-management/` (both existing entries were memory-focused). New categories created only when content warrants them; no speculative empty dirs.
+- **Audience:** public project, solo maintainer for now, optimize for contributor ergonomics.
+- **Scale target:** ~50–100 rules over 6 months.
+- **Cross-tool expansion:** deferred indefinitely; perfect Claude Code coverage first.
+
 ### Future (not V1)
 - Cross-tool expansion (`hub/cursor/`, etc.)
 - Optional `/share` command for upstream contribution

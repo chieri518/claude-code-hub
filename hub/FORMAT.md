@@ -12,7 +12,7 @@ If you change this schema, update `agents/compile` and run a full re-lint of `hu
 hub/claude-code/{category}/{id}.md
 ```
 
-- `category` is one of: `prompting`, `cli`, `workflows`, `best-practices`.
+- `category` is one of: `prompting`, `cli`, `workflows`, `memory-management`. New categories emerge from content — open a PR adding the directory + updating `agents/compile/schema.ts` + this list in the same change.
 - `id` matches the `id` field in frontmatter exactly. The filename carries no other meaning.
 - One atomic rule per file. If an entry wants to split, split it.
 
@@ -25,7 +25,7 @@ hub/claude-code/{category}/{id}.md
 id: kebab-case-unique-stable-id
 title: Human-readable title, sentence case
 kind: rule                        # V1: rule only. skill/reference reserved.
-category: workflows               # prompting | cli | workflows | best-practices
+category: workflows               # prompting | cli | workflows | memory-management
 tags: [tag-one, tag-two]          # denormalized, searchable
 applies_to:
   scope: project                  # project | user | managed
@@ -48,6 +48,7 @@ supersedes: []                    # ids this entry replaces
 
 - `id`: must equal the filename (minus `.md`). Kebab-case, lowercase, stable across rewrites. Never rename; use `supersedes` to retire.
 - `kind`: V1 accepts only `rule`. `skill` and `reference` are reserved for post-V1.
+- `tags`: 1–2 tags per entry from the controlled vocabulary below.
 - `applies_to.paths`: empty means the rule loads unconditionally. Non-empty maps directly to the `paths:` field in `.claude/rules/` output.
 - `summary`: ≤200 chars. Must stand on its own — it is the only thing emitted when the full body would exceed the CLAUDE.md budget.
 - `source.url`: must be an official Anthropic source (docs.claude.com, code.claude.com, platform.claude.com, github.com/anthropics/*). Community sources are not permitted in V1.
@@ -57,6 +58,33 @@ supersedes: []                    # ids this entry replaces
   - `current` — load normally.
   - `deprecated` — upstream feature renamed/removed; kept as a tombstone. Compile step emits a one-line warning entry pointing to `supersedes`.
   - `superseded` — replaced by another entry; do not emit at all.
+
+---
+
+## Tag vocabulary (controlled, V1)
+
+Tags give an orthogonal topic-axis to `category`. Each entry gets **1–2 tags max**. Tags are lowercase, hyphenated, singular when possible.
+
+| Tag | Covers |
+|---|---|
+| `context` | Managing the context window (`/clear`, session splitting, token budget) |
+| `memory` | `CLAUDE.md`, `.claude/rules/`, path-scoped rules, imports |
+| `planning` | Plan Mode, exploration-before-edit, scoping |
+| `verification` | Tests, linters, screenshots, self-check loops |
+| `tools` | Bash/file tools, tool allow/deny lists, tool design |
+| `subagents` | Agent delegation, parallelism, the `Agent` tool |
+| `hooks` | Lifecycle hooks (`UserPromptSubmit`, `SessionStart`, etc.) |
+| `mcp` | MCP servers, external integrations |
+| `slash-commands` | Built-in and custom `/commands` |
+| `permissions` | Permission modes, `--allowed-tools`, auto-accept |
+| `cost` | Token usage, model selection, caching |
+| `git` | Commit, PR, branch workflows with Claude |
+
+### Evolving the vocabulary
+
+- New tags require a one-line PR to this file with rationale.
+- A tag that applies to <3 entries after 3 months gets merged or dropped.
+- Free-text tags outside this list fail lint.
 
 ---
 
@@ -106,5 +134,6 @@ One short counter-example showing the failure mode this rule prevents.
 5. If `status` is `superseded`, `supersedes` references at least one live entry.
 6. All `See also` paths resolve.
 7. No two entries share the same `id`.
+8. `tags` has 1–2 entries, each from the controlled vocabulary above.
 
 A PR that fails any invariant blocks merge.

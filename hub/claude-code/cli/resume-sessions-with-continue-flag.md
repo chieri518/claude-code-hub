@@ -3,7 +3,7 @@ id: resume-sessions-with-continue-flag
 title: Resume prior conversations with --continue and --resume
 kind: rule
 category: cli
-tags: [cli, sessions, continuity]
+tags: [context]
 applies_to:
   scope: user
   paths: []

@@ -23,7 +23,7 @@ function fixture(
     title,
     kind: 'rule',
     category,
-    tags: [],
+    tags: ['context'],
     applies_to: { scope: 'project', paths: [] },
     summary,
     source: {
@@ -116,6 +116,18 @@ describe('lint', () => {
     const b = fixture({ id: 'dup', category: 'prompting' });
     const issues = lint([a, b]);
     expect(issues.some((i) => /duplicate id/.test(i.message))).toBe(true);
+  });
+
+  test('flags tags outside the controlled vocabulary', () => {
+    const e = fixture({ id: 'x', category: 'workflows', tags: ['bogus-tag'] });
+    expect(lint([e])[0]?.message).toMatch(/controlled vocabulary/);
+  });
+
+  test('flags missing tags and >2 tags', () => {
+    const a = fixture({ id: 'a', category: 'workflows', tags: [] });
+    const b = fixture({ id: 'b', category: 'workflows', tags: ['context', 'memory', 'planning'] });
+    expect(lint([a])[0]?.message).toMatch(/1–2 entries/);
+    expect(lint([b])[0]?.message).toMatch(/1–2 entries/);
   });
 
   test('flags superseded without supersedes[]', () => {

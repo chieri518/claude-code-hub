@@ -2,8 +2,8 @@
 id: keep-claude-md-under-200-lines
 title: Keep CLAUDE.md under 200 lines
 kind: rule
-category: best-practices
-tags: [claude-md, context-budget, memory]
+category: memory-management
+tags: [memory]
 applies_to:
   scope: project
   paths: []

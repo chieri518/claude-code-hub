@@ -23,7 +23,7 @@ claude-code-hub/
 │       ├── prompting/          #   How to write prompts
 │       ├── cli/                #   Command-line workflow
 │       ├── workflows/          #   Multi-step development patterns
-│       └── best-practices/     #   Long-running conventions
+│       └── memory-management/  #   CLAUDE.md, .claude/rules/, imports
 ├── sources/
 │   └── sources.yaml            # Tracked upstream URLs + content hashes
 ├── agents/

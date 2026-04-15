@@ -3,7 +3,7 @@ id: plan-mode-before-multi-file-changes
 title: Use Plan Mode before multi-file changes
 kind: rule
 category: workflows
-tags: [plan-mode, context-management, workflow]
+tags: [planning]
 applies_to:
   scope: project
   paths: []

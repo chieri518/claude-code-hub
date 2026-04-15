@@ -3,7 +3,7 @@ id: reference-files-with-at-syntax
 title: Reference files with @ syntax instead of describing their contents
 kind: rule
 category: prompting
-tags: [prompting, at-syntax, context-efficiency]
+tags: [context]
 applies_to:
   scope: project
   paths: []

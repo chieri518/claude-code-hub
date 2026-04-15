@@ -4,7 +4,7 @@ const CATEGORY_TITLES: Record<Category, string> = {
   workflows: 'Workflows',
   prompting: 'Prompting',
   cli: 'CLI',
-  'best-practices': 'Best Practices',
+  'memory-management': 'Memory Management',
 };
 
 function escapePipes(s: string): string {

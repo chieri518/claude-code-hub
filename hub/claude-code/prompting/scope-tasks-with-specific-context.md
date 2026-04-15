@@ -3,7 +3,7 @@ id: scope-tasks-with-specific-context
 title: Scope tasks with specific files, patterns, and symptoms
 kind: rule
 category: prompting
-tags: [prompting, specificity, context]
+tags: [planning]
 applies_to:
   scope: project
   paths: []

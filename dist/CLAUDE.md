@@ -18,7 +18,7 @@
 - **Use Plan Mode before multi-file changes** — Enter Plan Mode for any change that spans multiple files or unfamiliar code; skip it when the diff fits in one sentence. ([source](https://code.claude.com/docs/en/best-practices#explore-first-then-plan-then-code))
 - **Give Claude a way to verify its own work** — Always provide an automated check (tests, linter, expected output, screenshot compare) so Claude can confirm its work without relying on you as the sole loop. ([source](https://code.claude.com/docs/en/best-practices#give-claude-a-way-to-verify-its-work))
 
-## Best Practices
+## Memory Management
 
 - **Keep CLAUDE.md under 200 lines** — Target under 200 lines per CLAUDE.md; longer files burn context and drop in adherence — split overflow into `.claude/rules/` or @-imported files. ([source](https://code.claude.com/docs/en/memory#write-effective-instructions))
 - **Use path-scoped .claude/rules/ files in large projects** — For rules that only apply to certain files, put them in `.claude/rules/*.md` with a `paths:` glob frontmatter — they load only when relevant. ([source](https://code.claude.com/docs/en/memory#organize-rules-with-claude/rules/))

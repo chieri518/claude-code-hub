@@ -2,8 +2,8 @@
 id: use-path-scoped-rules-for-large-projects
 title: Use path-scoped .claude/rules/ files in large projects
 kind: rule
-category: best-practices
-tags: [rules, claude-md, monorepo, scoping]
+category: memory-management
+tags: [memory]
 applies_to:
   scope: project
   paths: []
