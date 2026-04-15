@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or larger proposal
+    url: https://github.com/chieri518/claude-code-hub/discussions
+    about: For open-ended questions, scope debates, or anything that would alter a locked decision in MEMORY.md, start a discussion first.

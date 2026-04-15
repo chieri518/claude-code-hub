@@ -1,0 +1,70 @@
+name: Propose a rule
+description: Suggest a new best-practice rule for the Hub.
+title: "[rule] "
+labels: ["proposed-rule"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a rule. Before filing, skim [`hub/FORMAT.md`](../blob/main/hub/FORMAT.md) — every accepted entry must fit that schema. Official Anthropic sources only (`docs.claude.com`, `code.claude.com`, `platform.claude.com`, `github.com/anthropics/*`).
+  - type: input
+    id: id
+    attributes:
+      label: Proposed id
+      description: Kebab-case filename without `.md`. Must be stable — never renamed after merge.
+      placeholder: use-path-scoped-rules-for-large-projects
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - prompting
+        - cli
+        - workflows
+        - memory-management
+        - (new — explain below)
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Sentence case. Imperative preferred.
+      placeholder: Use path-scoped rules for large projects
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (≤200 chars)
+      description: One-sentence "what + when" distillation. This is the line that appears in `dist/CLAUDE.md` when the body won't fit.
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: Source URL
+      description: Deep-linked to the exact section anchor. Anthropic-official only.
+      placeholder: https://code.claude.com/docs/en/memory#path-scoped-rules
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why this belongs in the Hub
+      description: What failure mode does the rule prevent? Why is it non-obvious from the official docs alone?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: The source is an official Anthropic page
+          required: true
+        - label: I searched `hub/` and no existing entry covers this
+          required: true
+        - label: This is one atomic rule, not a bundle
+          required: true

@@ -1,0 +1,35 @@
+name: Report a broken source URL
+description: Flag an entry whose `source.url` is dead, moved, or pointing to stale content.
+title: "[broken-source] "
+labels: ["broken-link"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The URL-liveness workflow auto-opens a rolling issue titled "Broken source URLs" for HTTP-level failures. Use this template for soft breakage the crawler can't see: wrong content, moved anchor, superseded page.
+  - type: input
+    id: entry_id
+    attributes:
+      label: Entry id
+      description: The `id` field of the affected entry (equals filename minus `.md`).
+      placeholder: resume-sessions-with-continue-flag
+    validations:
+      required: true
+  - type: input
+    id: current_url
+    attributes:
+      label: Current `source.url`
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong
+      description: Dead link? Redirects elsewhere? Anchor missing? Content no longer matches the rule?
+    validations:
+      required: true
+  - type: input
+    id: replacement_url
+    attributes:
+      label: Suggested replacement URL (optional)
+      description: If you've found the new canonical page, paste it here.

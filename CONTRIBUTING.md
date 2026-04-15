@@ -31,6 +31,14 @@ Thanks for considering a contribution. The Hub is maintained to be lightweight, 
 
 ## Authoring a rule
 
+Fastest path — scaffold the file, then fill in the TODOs:
+
+```bash
+bun run new-rule <kebab-case-id> --category <prompting|cli|workflows|memory-management> --tag <tag>
+```
+
+The scaffolder writes `hub/claude-code/<category>/<id>.md` with FORMAT-compliant frontmatter and a body skeleton. It refuses existing ids and non-kebab-case ids.
+
 - One atomic rule per file. If a file wants to cover two topics, split it.
 - `id` equals the filename basename. Kebab-case. Never rename — use `supersedes` to retire.
 - `source.url` must be an official Anthropic page, deep-linked to the relevant section anchor.

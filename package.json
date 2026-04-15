@@ -12,6 +12,7 @@
     "ingest:detect": "bun run agents/ingest/index.ts",
     "distill": "bun run agents/distill/index.ts",
     "lint:urls": "bun run agents/lint-urls/index.ts",
+    "new-rule": "bun run scripts/new-rule.ts",
     "test": "bun test"
   },
   "dependencies": {

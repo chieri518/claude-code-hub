@@ -1,8 +1,9 @@
 node_modules/
 
 .drafts/*
-!.drafts/.gitkeep
 !.drafts/README.md
+
+.claude/settings.local.json
 
 # dist/ is committed — it is the product of this repo.
 # CI enforces sync with hub/. Do not hand-edit.

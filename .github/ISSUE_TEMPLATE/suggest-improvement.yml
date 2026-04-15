@@ -1,0 +1,32 @@
+name: Suggest an improvement
+description: Refinements to an existing rule, the compile pipeline, or the docs.
+title: "[improvement] "
+labels: ["improvement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - existing rule content
+        - FORMAT schema
+        - compile / lint behavior
+        - ingestion or distillation agent
+        - docs (README, ARCHITECTURE, CONTRIBUTING)
+        - other
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target file or entry id
+      placeholder: hub/claude-code/cli/resume-sessions-with-continue-flag.md
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      description: What should change, and why? Concrete rewrite beats vague direction.
+    validations:
+      required: true

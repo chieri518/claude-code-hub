@@ -115,12 +115,13 @@ Two CI checks to make the public repo feel trustworthy as contributors arrive.
 - Tests: mocked `HeadFn`, zero network cost (6 new tests, 32 total).
 - Status badges in root README pointing at both workflows.
 
-### Phase 6 — Contributor ergonomics
+### Phase 6 — Contributor ergonomics ✅ DONE
 Target: a stranger can propose a rule in <10 minutes without reading the full codebase.
-- `.github/ISSUE_TEMPLATE/`: propose-a-rule, report-broken-source, suggest-improvement — each pre-fills FORMAT fields.
-- `.github/pull_request_template.md`: mirrors CONTRIBUTING.md checklist.
-- `bun run new-rule <id>` — scaffolds an entry with frontmatter pre-filled.
-- Above-the-fold README polish with a 30-sec "what + why" + gif/screenshot.
+- `.github/ISSUE_TEMPLATE/{propose-a-rule,report-broken-source,suggest-improvement}.yml` — YAML issue forms pre-fill FORMAT fields; `config.yml` disables blank issues and routes open-ended questions to Discussions.
+- `.github/pull_request_template.md` — mirrors the CONTRIBUTING.md checklist (typecheck/compile/test + doc-sync gates).
+- `scripts/new-rule.ts` + `bun run new-rule <id> --category <cat>` — scaffolds a FORMAT-compliant entry with frontmatter pre-filled. Validates kebab-case id, category membership, id-uniqueness across all categories. No overwrite.
+- README above-the-fold polish — 30-sec "what + why" hero; `new-rule` call-out in the contributor path.
+- Screenshot/gif deferred — the repo is CLI-and-markdown, a still image would add little over the code block.
 
 ### Phase 7 — Content growth to ~50–100 rules
 Tooling to grow without quality drift.
