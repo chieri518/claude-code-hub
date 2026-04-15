@@ -14,8 +14,8 @@ source:
   url: https://code.claude.com/docs/en/memory#organize-rules-with-claude/rules/
   title: How Claude remembers your project — Organize rules with .claude/rules/
   publisher: Anthropic
-  fetched: 2026-04-13
-  source_hash: sha256:seed
+  fetched: 2026-04-15
+  source_hash: sha256:9a370491906a0dd90e8822a1b0edb7a9573f6490e27834758d24f93036f5487f
 status: current
 supersedes: []
 ---

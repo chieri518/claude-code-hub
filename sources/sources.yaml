@@ -19,12 +19,12 @@ sources:
   - id: docs-best-practices
     url: https://code.claude.com/docs/en/best-practices
     type: docs
-    last_hash: sha256:85bb48ef87049184cfef7fd2af9aac0084a6b8b7139edeaade54e7bce9a52e3e
+    last_hash: sha256:0b0a5d2b1d1478e49cb8476ef4780a921c14c4531a619bfbc53ceb18218088a6
   - id: docs-memory
     url: https://code.claude.com/docs/en/memory
     type: docs
-    last_hash: sha256:bacbcadfdd158cf4ed64165534c51e7284ac9f9529174e240c341a0fde8a5cee
+    last_hash: sha256:9a370491906a0dd90e8822a1b0edb7a9573f6490e27834758d24f93036f5487f
   - id: docs-whats-new
     url: https://code.claude.com/docs/en/whats-new
     type: docs
-    last_hash: sha256:cdb0a5a90ec08a3841dfa7d95fba9b945dad4eeaa126745ef6951cc88a48ec76
+    last_hash: sha256:fd2a1f1fb05fde006b9ee73f1e44648381ccaa0ec8ed6fb1bc85968e0ce091b0
