@@ -2,6 +2,7 @@ node_modules/
 
 .drafts/*
 !.drafts/.gitkeep
+!.drafts/README.md
 
 # dist/ is committed — it is the product of this repo.
 # CI enforces sync with hub/. Do not hand-edit.

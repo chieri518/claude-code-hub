@@ -4,36 +4,56 @@ Automated ingestion agent. Monitors official Anthropic sources for changes and p
 
 ## Status
 
-**Not yet built.** Planned for **Phase 3**. See [`MEMORY.md`](../../MEMORY.md) for phase status.
+**Phase 3a: Built — deterministic detection layer.**
+**Phase 3b: Not yet built — LLM drafting + GitHub workflow.**
 
-## What it will do
+See [`MEMORY.md`](../../MEMORY.md) for phase status and locked decisions.
 
-1. Read `sources/sources.yaml`.
-2. Fetch each tracked URL; compute a whole-page SHA-256.
-3. If the hash differs from `last_hash`, hand the diff to a headless Claude Code invocation (`claude -p`) with a scoped prompt that includes `hub/FORMAT.md` and the current set of entries.
-4. The agent writes proposed hub edits to a branch and opens a PR (mechanism TBD — leaning toward `peter-evans/create-pull-request`).
-5. CI runs `bun run compile` and `bun test` on the PR. Lint-clean is a merge gate.
-6. A human reviews and merges.
+## Run detection locally
 
-## What it will read
+```bash
+bun run ingest:detect
+```
+
+For each source in `sources/sources.yaml`, this fetches the URL, computes a whole-page SHA-256, and compares against the stored `last_hash`. If any source has changed:
+
+1. Updates `sources.yaml` with the new hashes.
+2. Creates `.drafts/ingest/{run-id}/` containing:
+   - `summary.json` — list of changed sources with URLs, old/new hashes, and a `firstSeen` flag.
+   - `{source-id}.body.txt` — the full fetched body of each changed source.
+3. Exits 0. No `hub/` writes, no LLM calls.
+
+Exits **2** if more than **5 sources changed** in one run (runaway guardrail — usually signals a large upstream reorg or a fetch bug).
+
+## Pipeline (Phase 3a)
+
+| Stage | File | Responsibility |
+|---|---|---|
+| load | `sources.ts` | Parse and validate `sources/sources.yaml`. |
+| fetch | `fetch.ts` | HTTP GET + SHA-256 of the whole page. Fetcher is injectable (used by tests). |
+| detect | `detect.ts` | Compare hashes, collect changes, enforce the runaway cap. |
+| orchestrate | `index.ts` | Wire it together, update `sources.yaml`, write drafts. |
+
+## Pipeline (Phase 3b — planned)
+
+A GitHub Actions workflow will run `ingest:detect` on a schedule, then hand each `.drafts/ingest/{run-id}/` to a headless `claude -p` invocation authenticated with `CLAUDE_CODE_OAUTH_TOKEN`. The LLM reads the run summary, `hub/FORMAT.md`, and existing entries, then proposes edits. `bun run compile && bun test` gates the PR. `peter-evans/create-pull-request` opens it. No auto-merge.
+
+## What it reads
 
 - `sources/sources.yaml` — tracked URLs and stored hashes
-- [`hub/FORMAT.md`](../../hub/FORMAT.md) — the schema the agent must produce
-- `hub/**/*.md` — existing entries (for deprecation scans and deduplication)
+- Upstream URLs (HTTPS)
+- (Phase 3b) `hub/FORMAT.md` and `hub/**/*.md`
 
-## What it will write
+## What it writes
 
-- `sources/sources.yaml` — updated `last_hash` values
-- Existing `hub/**/*.md` entries — deprecation flags, `source_hash` backfills on seed entries
-- Brand-new rules — initially staged in `.drafts/ingest/*.md` (not directly into `hub/`), pending human review and promotion
+- `sources/sources.yaml` — updated `last_hash` values after successful fetches
+- `.drafts/ingest/{run-id}/` — snapshots and summary for the LLM stage
+- (Phase 3b) a branch + PR modifying `hub/**/*.md`, `sources/sources.yaml`, and staging brand-new rules under `.drafts/ingest/` for human promotion
 
 ## Scope boundaries (locked)
 
 - **Official Anthropic sources only** — no community scraping in V1.
 - **No auto-merge.** Always a PR.
-- **`workflow_dispatch` trigger only** for the first 3–5 runs; cron is enabled after output quality is proven.
-- **No network calls from the compile step** — ingestion is the only phase that talks to the internet.
-
-## Open questions (to resolve before Phase 3 start)
-
-See [`MEMORY.md`](../../MEMORY.md) → *Open Questions*. Tracked: sanitization strategy, PR tool, and ingestion context-bounding.
+- **`workflow_dispatch` only** for the first 3–5 runs; cron only after quality is proven.
+- **5-source cap per run** — aborts hard on overflow to protect Max-plan quota.
+- **Agent never writes to `hub/` directly for new rules.** New rules stage in `.drafts/ingest/` for human authoring. Existing-entry edits (deprecation, hash backfill) may go directly to `hub/` because they are small and mechanical.

@@ -69,11 +69,36 @@ Locked decisions for Phase 2:
 
 Update `.gitignore` to un-ignore `dist/` content (previously ignored).
 
-### Phase 3 — Ingestion agent
-- Populate `sources/sources.yaml` with 2–3 official URLs.
-- Fetch script: detects content-hash changes.
-- Headless Claude Code invocation: given a diff, propose hub edits as a patch + PR body.
-- Wire into `.github/workflows/ingest.yml`. **Keep `workflow_dispatch`-only for the first 3–5 runs.** Only enable cron after manual review proves quality.
+### Phase 3 — Ingestion agent (IN PROGRESS)
+
+Split into two commits:
+
+**Phase 3a ✅ DONE** — deterministic detection layer.
+- `sources/sources.yaml` populated with 4 URLs:
+  - `github.com/anthropics/claude-code/releases.atom`
+  - `code.claude.com/docs/en/best-practices`
+  - `code.claude.com/docs/en/memory`
+  - `code.claude.com/docs/en/whats-new`
+- `agents/ingest/{sources,fetch,detect,index}.ts` — fetch + SHA-256 + change detection.
+- `bun run ingest:detect` — no LLM, no write to `hub/`. Updates `sources.yaml` hashes and stages changed-source bodies + `summary.json` under `.drafts/ingest/{run-id}/`.
+- Hard cap: **5 changed sources per run** (aborts with exit 2 on overflow).
+- 11 unit tests under `test/ingest.test.ts`.
+
+**Phase 3b (NEXT)** — LLM drafting + GitHub workflow.
+- `.github/workflows/ingest.yml` — `workflow_dispatch` only at first.
+- Install `claude` CLI in the runner, invoke with `CLAUDE_CODE_OAUTH_TOKEN` (Max plan subscription, free marginal cost).
+- Agent reads `.drafts/ingest/{run-id}/summary.json` + bodies + `hub/FORMAT.md` + existing entries, proposes edits.
+- Run `bun run compile && bun test` as a merge gate.
+- Open PR via `peter-evans/create-pull-request`.
+- Cron enabled only after 3–5 clean manual runs.
+
+Locked Phase 3 decisions:
+
+- **Auth: `CLAUDE_CODE_OAUTH_TOKEN`** (user has Max plan — $0 marginal cost vs. API key's ~$0.05–$0.30/run). Token generated locally with `claude setup-token`, pasted into GitHub repo secrets manually.
+- **PR tool: `peter-evans/create-pull-request`.** Alternative on the table: `gh pr create` via GitHub CLI if we later need more imperative control over branch/commit/PR logic.
+- **Write scope (agent):** `sources/sources.yaml` (hashes), existing `hub/**/*.md` (deprecation flags, hash backfills), new rules → `.drafts/ingest/*.md` only (never direct to `hub/`).
+- **Guardrail:** abort at >5 changed sources per run to protect Max quota.
+- **Rate-limit reality:** ingestion consumes Max quota shared with user's interactive work. Typical run: negligible. Doc-reorg day: 10–30 min interactive equivalent.
 
 ### Phase 4 — Local session distillation
 `/distill` slash command (or equivalent). Captures a session transcript, runs a "extract generalizable lesson" prompt, writes a draft to `.drafts/`. Never auto-commits.

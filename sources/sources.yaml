@@ -5,13 +5,29 @@
 #     - id:        short stable identifier (kebab-case)
 #       url:       canonical URL to fetch
 #       type:      one of: docs | changelog | release-notes
-#       last_hash: content hash from the most recent successful fetch
-#                  (populated by the ingestion agent; leave empty initially)
+#       last_hash: whole-page SHA-256 from the most recent successful fetch.
+#                  Format: "sha256:<hex>" or "sha256:seed" for never-fetched.
 #
-# Example (uncomment and edit to enable):
-#   - id: claude-code-releases
-#     url: https://github.com/anthropics/claude-code/releases.atom
-#     type: release-notes
-#     last_hash: ""
+# The ingestion agent populates and updates last_hash on each run.
+# Do not hand-edit last_hash — let the agent own it.
 
-sources: []
+sources:
+  - id: claude-code-releases
+    url: https://github.com/anthropics/claude-code/releases.atom
+    type: release-notes
+    last_hash: sha256:seed
+
+  - id: docs-best-practices
+    url: https://code.claude.com/docs/en/best-practices
+    type: docs
+    last_hash: sha256:seed
+
+  - id: docs-memory
+    url: https://code.claude.com/docs/en/memory
+    type: docs
+    last_hash: sha256:seed
+
+  - id: docs-whats-new
+    url: https://code.claude.com/docs/en/whats-new
+    type: docs
+    last_hash: sha256:seed

@@ -47,7 +47,7 @@ claude-code-hub/
 | Agent | When it runs | Reads | Writes | LLM? |
 |---|---|---|---|---|
 | **compile** | On demand (`bun run compile`) and in CI | `hub/**/*.md`, `hub/FORMAT.md` | `dist/`, `hub/README.md` | No |
-| **ingest** | GitHub Action, manual then cron | `sources/sources.yaml`, upstream URLs, `hub/FORMAT.md`, `hub/**/*.md` | PR proposing changes to `sources/sources.yaml` and `hub/**/*.md` | Yes (headless `claude -p`) |
+| **ingest** | GitHub Action, manual then cron | `sources/sources.yaml`, upstream URLs, `hub/FORMAT.md`, `hub/**/*.md` | `sources/sources.yaml` (hashes), `.drafts/ingest/{run-id}/` (Phase 3a); PR modifying `hub/**/*.md` (Phase 3b) | Yes, Phase 3b only (headless `claude -p` via `CLAUDE_CODE_OAUTH_TOKEN`) |
 | **distill** | User-invoked (`/distill` or CLI) | Local Claude Code session transcript | `.drafts/{slug}.md` (never `hub/` directly) | Yes (headless `claude -p`) |
 
 `compile` is the only mandatory agent. `ingest` and `distill` are optional augmentations — the hub works as a pure markdown repo without them.
