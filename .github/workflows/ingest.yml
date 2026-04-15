@@ -3,10 +3,90 @@ name: ingest
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Placeholder
-        run: echo "ingest placeholder"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Detect upstream changes
+        id: detect
+        run: |
+          set +e
+          bun run ingest:detect
+          code=$?
+          set -e
+          if [ $code -eq 2 ]; then
+            echo "Runaway guardrail tripped (>5 changed sources). Aborting." >&2
+            exit 2
+          fi
+          if [ $code -ne 0 ]; then
+            exit $code
+          fi
+          # Find the newest run-id dir, if any
+          run_dir=$(ls -1dt .drafts/ingest/*/ 2>/dev/null | head -n1 || true)
+          if [ -z "$run_dir" ]; then
+            echo "no-changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no-changes=false" >> "$GITHUB_OUTPUT"
+            echo "run-dir=${run_dir%/}" >> "$GITHUB_OUTPUT"
+            echo "run-id=$(basename "${run_dir%/}")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install claude CLI
+        if: steps.detect.outputs.no-changes == 'false'
+        run: bun add -g @anthropic-ai/claude-code
+
+      - name: Draft hub edits with Claude
+        if: steps.detect.outputs.no-changes == 'false'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          RUN_DIR: ${{ steps.detect.outputs.run-dir }}
+        run: |
+          prompt="$(cat agents/ingest/prompt.md)
+
+          The current run directory is: $RUN_DIR
+          Read $RUN_DIR/summary.json and the accompanying .body.txt files, then apply edits per the rules above."
+          claude -p "$prompt" \
+            --permission-mode acceptEdits \
+            --allowed-tools Read,Write,Edit,Glob,Grep
+
+      - name: Verify build
+        if: steps.detect.outputs.no-changes == 'false'
+        run: |
+          bun run compile
+          bun test
+
+      - name: Compute PR metadata
+        if: steps.detect.outputs.no-changes == 'false'
+        id: meta
+        run: |
+          date=$(date -u +%Y-%m-%d)
+          echo "branch=ingest/$date" >> "$GITHUB_OUTPUT"
+          echo "title=ingest: upstream changes $date" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: steps.detect.outputs.no-changes == 'false'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ${{ steps.meta.outputs.branch }}
+          title: ${{ steps.meta.outputs.title }}
+          body: |
+            Automated ingestion run `${{ steps.detect.outputs.run-id }}`.
+            See `${{ steps.detect.outputs.run-dir }}/summary.json` for detected changes.
+            Claude drafted edits per `agents/ingest/prompt.md`. Review before merging.
+          assignees: chieri518
+          commit-message: "ingest: upstream changes ${{ steps.meta.outputs.branch }}"
+          delete-branch: true

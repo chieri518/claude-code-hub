@@ -5,7 +5,7 @@ Automated ingestion agent. Monitors official Anthropic sources for changes and p
 ## Status
 
 **Phase 3a: Built — deterministic detection layer.**
-**Phase 3b: Not yet built — LLM drafting + GitHub workflow.**
+**Phase 3b: Built — LLM drafting + GitHub workflow (manual trigger only).**
 
 See [`MEMORY.md`](../../MEMORY.md) for phase status and locked decisions.
 
@@ -34,9 +34,19 @@ Exits **2** if more than **5 sources changed** in one run (runaway guardrail —
 | detect | `detect.ts` | Compare hashes, collect changes, enforce the runaway cap. |
 | orchestrate | `index.ts` | Wire it together, update `sources.yaml`, write drafts. |
 
-## Pipeline (Phase 3b — planned)
+## Pipeline (Phase 3b)
 
-A GitHub Actions workflow will run `ingest:detect` on a schedule, then hand each `.drafts/ingest/{run-id}/` to a headless `claude -p` invocation authenticated with `CLAUDE_CODE_OAUTH_TOKEN`. The LLM reads the run summary, `hub/FORMAT.md`, and existing entries, then proposes edits. `bun run compile && bun test` gates the PR. `peter-evans/create-pull-request` opens it. No auto-merge.
+`.github/workflows/ingest.yml` runs on `workflow_dispatch` only (cron deferred until 3–5 clean manual runs):
+
+1. `bun run ingest:detect` stages changed sources under `.drafts/ingest/{run-id}/`.
+2. If anything changed, install `claude` CLI and invoke `claude -p` with `CLAUDE_CODE_OAUTH_TOKEN`.
+3. The agent reads `agents/ingest/prompt.md` + the run dir + `hub/FORMAT.md` + existing entries, then applies edits.
+4. `bun run compile && bun test` gates the run.
+5. `peter-evans/create-pull-request` opens a PR on branch `ingest/YYYY-MM-DD`, assigned to the repo owner. No auto-merge.
+
+### One-time setup
+
+Generate an OAuth token locally with `claude setup-token`, then add it to GitHub repo secrets as `CLAUDE_CODE_OAUTH_TOKEN`.
 
 ## What it reads
 

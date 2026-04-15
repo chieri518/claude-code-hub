@@ -84,13 +84,13 @@ Split into two commits:
 - Hard cap: **5 changed sources per run** (aborts with exit 2 on overflow).
 - 11 unit tests under `test/ingest.test.ts`.
 
-**Phase 3b (NEXT)** — LLM drafting + GitHub workflow.
-- `.github/workflows/ingest.yml` — `workflow_dispatch` only at first.
-- Install `claude` CLI in the runner, invoke with `CLAUDE_CODE_OAUTH_TOKEN` (Max plan subscription, free marginal cost).
-- Agent reads `.drafts/ingest/{run-id}/summary.json` + bodies + `hub/FORMAT.md` + existing entries, proposes edits.
-- Run `bun run compile && bun test` as a merge gate.
-- Open PR via `peter-evans/create-pull-request`.
-- Cron enabled only after 3–5 clean manual runs.
+**Phase 3b ✅ DONE** — LLM drafting + GitHub workflow.
+- `.github/workflows/ingest.yml` — `workflow_dispatch` only (cron deferred until 3–5 clean runs).
+- `claude` CLI installed per-run, invoked with `CLAUDE_CODE_OAUTH_TOKEN` secret.
+- `agents/ingest/prompt.md` defines the agent's scope, guardrails, and PR-body template.
+- Merge gate: `bun run compile && bun test`.
+- PR via `peter-evans/create-pull-request` on branch `ingest/YYYY-MM-DD`, assigned to repo owner.
+- Requires manual one-time setup: `claude setup-token` → paste into `CLAUDE_CODE_OAUTH_TOKEN` repo secret.
 
 Locked Phase 3 decisions:
 
