@@ -15,19 +15,16 @@ sources:
   - id: claude-code-releases
     url: https://github.com/anthropics/claude-code/releases.atom
     type: release-notes
-    last_hash: sha256:seed
-
+    last_hash: sha256:ce4beecef8c535426e4a5e621a88005c697e8d17faefb9126ffbb4dd3e3cd536
   - id: docs-best-practices
     url: https://code.claude.com/docs/en/best-practices
     type: docs
-    last_hash: sha256:seed
-
+    last_hash: sha256:85bb48ef87049184cfef7fd2af9aac0084a6b8b7139edeaade54e7bce9a52e3e
   - id: docs-memory
     url: https://code.claude.com/docs/en/memory
     type: docs
-    last_hash: sha256:seed
-
+    last_hash: sha256:bacbcadfdd158cf4ed64165534c51e7284ac9f9529174e240c341a0fde8a5cee
   - id: docs-whats-new
     url: https://code.claude.com/docs/en/whats-new
     type: docs
-    last_hash: sha256:seed
+    last_hash: sha256:cdb0a5a90ec08a3841dfa7d95fba9b945dad4eeaa126745ef6951cc88a48ec76
