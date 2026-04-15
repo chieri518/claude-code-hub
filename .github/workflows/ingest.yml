@@ -11,7 +11,7 @@ jobs:
   ingest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -47,7 +47,7 @@ jobs:
 
       - name: Install claude CLI
         if: steps.detect.outputs.no-changes == 'false'
-        run: bun add -g @anthropic-ai/claude-code
+        run: npm install -g @anthropic-ai/claude-code
 
       - name: Draft hub edits with Claude
         if: steps.detect.outputs.no-changes == 'false'
