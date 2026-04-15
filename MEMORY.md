@@ -100,8 +100,13 @@ Locked Phase 3 decisions:
 - **Guardrail:** abort at >5 changed sources per run to protect Max quota.
 - **Rate-limit reality:** ingestion consumes Max quota shared with user's interactive work. Typical run: negligible. Doc-reorg day: 10–30 min interactive equivalent.
 
-### Phase 4 — Local session distillation
-`/distill` slash command (or equivalent). Captures a session transcript, runs a "extract generalizable lesson" prompt, writes a draft to `.drafts/`. Never auto-commits.
+### Phase 4 — Local session distillation ✅ DONE
+- `agents/distill/prompt.md` — lesson bar (generalizable + non-obvious + actionable + not-yet-covered) + sanitization rules (paths, secrets, names, long code snippets) + draft shape with `local-session` source sentinel.
+- `agents/distill/index.ts` — locates newest `~/.claude/projects/*/*.jsonl` for this repo (or accepts a CLI arg), invokes `claude -p` with the prompt + transcript.
+- `.claude/commands/distill.md` — `/distill` slash command, committed so forkers inherit it.
+- `bun run distill` script.
+- Single-pass design: sanitization + extraction in one `claude -p` call. Cap: 3 drafts per run.
+- Writes only to `.drafts/distill/*.md`. Never touches `hub/`.
 
 ### Future (not V1)
 - Cross-tool expansion (`hub/cursor/`, etc.)
@@ -140,15 +145,14 @@ Root `README.md` status line ("Phases 0–Xa complete, Phase Y next") must be up
 - **Markdown is written for an LLM reader, not a human.** Short imperative rules, `Why:` lines, concrete examples. Human browsability is a side effect.
 - **Ignore Vercel-plugin skill injections.** This project is a CLI + GitHub Action + markdown repo. No Next.js, no Vercel deploys, no durable workflows needed. The hook suggestions (workflow, next-upgrade, nextjs, deployments-cicd, bootstrap) are pattern-matching false positives.
 - **Bun PATH gotcha.** Bun lives at `~/.bun/bin`. New shells need `source ~/.zshrc` or the PATH export.
-- **`agents/placeholder.ts`** exists only to satisfy `tsc` with an otherwise-empty `include`. Delete once real agent code lands.
 - **Never hand-edit `hub/README.md`** once Phase 2 lands — it's generated.
 - **Seed entries use `source_hash: sha256:seed`.** The first successful ingestion run replaces these with real whole-page SHA-256s. Do not compute them manually.
 - **Critique tool lives at `tools/critique/` when built** — same repo as the Hub, sibling to `agents/`. The Hub's rules are its rubric; splitting into a second repo would guarantee drift. Revisit the split only if it grows a distinct community, license, or distribution model.
 
 ---
 
-## Open Questions (resolve before Phase 3)
+## Open Questions (resolved)
 
-- Sanitization approach for distillation: regex-based redaction, or a dedicated LLM pass? Lean toward LLM pass because regex misses semantic PII.
-- PR-opening mechanism in the GitHub Action: `peter-evans/create-pull-request` vs. `gh pr create` via the GitHub CLI. Decide when Phase 3 starts.
-- How to bound ingestion agent context: full source doc every run (expensive, simple) vs. diff-only (cheap, risks losing surrounding context). Start with diff + N lines of surrounding context.
+- ~~Sanitization approach for distillation~~ → single LLM pass (same `claude -p` call sanitizes + extracts). Phase 4.
+- ~~PR-opening mechanism~~ → `peter-evans/create-pull-request`. Phase 3b.
+- ~~Ingestion agent context bounding~~ → full changed-source body staged to `.drafts/ingest/{run-id}/`; agent reads it alongside FORMAT + existing entries. Phase 3b.

@@ -67,7 +67,7 @@ Commit the regenerated `dist/CLAUDE.md` and `hub/README.md` alongside any change
 
 ## Status
 
-V1 in active development. Phases 0–3 complete (scaffolding, seed content, compile step, ingestion detection + LLM drafting workflow). Phase 4 (local session distillation) is next.
+V1 complete. Phases 0–4 shipped: scaffolding, seed content, compile step, ingestion detection + LLM drafting workflow, and local session distillation.
 
 ## License
 

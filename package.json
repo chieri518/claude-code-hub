@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "compile": "bun run agents/compile/index.ts",
     "ingest:detect": "bun run agents/ingest/index.ts",
+    "distill": "bun run agents/distill/index.ts",
     "test": "bun test"
   },
   "dependencies": {
