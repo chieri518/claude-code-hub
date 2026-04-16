@@ -14,8 +14,8 @@ source:
   url: https://code.claude.com/docs/en/best-practices#manage-context-aggressively
   title: Best Practices for Claude Code — Manage context aggressively
   publisher: Anthropic
-  fetched: 2026-04-13
-  source_hash: sha256:seed
+  fetched: 2026-04-16
+  source_hash: sha256:02e8d8905721e81aaa41c80eed73f0d47b987ae0ab45bd7e106e3b4c8621f531
 status: current
 supersedes: []
 ---
