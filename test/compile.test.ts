@@ -5,6 +5,26 @@ import { emitClaudeMd, BudgetError } from '../agents/compile/emit-claude-md';
 import { emitReadme } from '../agents/compile/emit-readme';
 import type { Entry } from '../agents/compile/schema';
 
+const DEFAULT_BODY = [
+  '## Rule',
+  'Do the thing when the trigger fires.',
+  '',
+  '## Why',
+  '- Mechanism one.',
+  '- Mechanism two.',
+  '',
+  '## How to apply',
+  'Concrete trigger and action.',
+  '',
+  '## Example',
+  '```txt',
+  'real minimal example',
+  '```',
+  '',
+  '## Anti-pattern',
+  'Short counter-example.',
+].join('\n');
+
 function fixture(
   overrides: Partial<Entry> & { id: string; category: Entry['category'] },
 ): Entry {
@@ -15,7 +35,7 @@ function fixture(
     summary = `Summary for ${id}`,
     status = 'current',
     supersedes = [],
-    body = '',
+    body = DEFAULT_BODY,
     ...rest
   } = overrides;
   return {
@@ -139,9 +159,79 @@ describe('lint', () => {
     const e = fixture({
       id: 'x',
       category: 'workflows',
-      body: 'See [ghost](../prompting/ghost.md).',
+      body: `${DEFAULT_BODY}\n\nSee [ghost](../prompting/ghost.md).`,
     });
-    expect(lint([e])[0]?.message).toMatch(/unknown entry/);
+    expect(lint([e]).some((i) => /unknown entry/.test(i.message))).toBe(true);
+  });
+});
+
+const wellFormedBody = () => DEFAULT_BODY;
+
+describe('density lint', () => {
+  test('all seeds in hub/ pass density checks', async () => {
+    const { parseHub } = await import('../agents/compile/parse');
+    const entries = await parseHub('hub/claude-code');
+    const issues = lint(entries);
+    expect(issues).toEqual([]);
+  });
+
+  test('flags summary over 180-char soft cap', () => {
+    const e = fixture({
+      id: 'x',
+      category: 'workflows',
+      summary: 'a'.repeat(181),
+      body: wellFormedBody(),
+    });
+    expect(lint([e]).some((i) => /soft cap 180/.test(i.message))).toBe(true);
+  });
+
+  test('flags body over 150 lines', () => {
+    const filler = Array(160).fill('line').join('\n');
+    const e = fixture({
+      id: 'x',
+      category: 'workflows',
+      body: `${wellFormedBody()}\n${filler}`,
+    });
+    expect(lint([e]).some((i) => /max 150/.test(i.message))).toBe(true);
+  });
+
+  test('flags stub bodies under 15 lines', () => {
+    const e = fixture({ id: 'x', category: 'workflows', body: '## Rule\nToo short.' });
+    expect(lint([e]).some((i) => /min 15/.test(i.message))).toBe(true);
+  });
+
+  test('flags missing required sections', () => {
+    const e = fixture({
+      id: 'x',
+      category: 'workflows',
+      body: wellFormedBody().replace('## Anti-pattern\nShort counter-example.', ''),
+    });
+    expect(lint([e]).some((i) => /Anti-pattern/.test(i.message))).toBe(true);
+  });
+
+  test('flags empty or TODO Example section', () => {
+    const bodyTodo = wellFormedBody().replace('real minimal example', 'TODO: fill me in');
+    const e = fixture({ id: 'x', category: 'workflows', body: bodyTodo });
+    expect(lint([e]).some((i) => /Example section is empty or contains a TODO/.test(i.message))).toBe(true);
+  });
+
+  test('flags personality phrases in prose but not inside fenced code blocks', () => {
+    const bad = fixture({
+      id: 'bad',
+      category: 'workflows',
+      body: `${wellFormedBody()}\n\nThink step by step before editing.`,
+    });
+    expect(lint([bad]).some((i) => /think step by step/i.test(i.message))).toBe(true);
+
+    const ok = fixture({
+      id: 'ok',
+      category: 'workflows',
+      body: wellFormedBody().replace(
+        'real minimal example',
+        'User: think step by step\nAssistant: ...',
+      ),
+    });
+    expect(lint([ok]).filter((i) => /think step by step/i.test(i.message))).toEqual([]);
   });
 });
 

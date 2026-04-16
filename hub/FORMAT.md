@@ -125,15 +125,25 @@ One short counter-example showing the failure mode this rule prevents.
 
 ---
 
-## Lint invariants (enforced by Phase 2 compile step)
+## Lint invariants (enforced by the compile step)
+
+**Schema / structural (Phase 2):**
 
 1. `id` equals the filename basename.
 2. `source.url` host is in the Anthropic allowlist.
-3. `summary` is ≤200 chars and non-empty.
+3. `summary` is ≤200 chars and non-empty (hard cap).
 4. `kind` is `rule`.
 5. If `status` is `superseded`, `supersedes` references at least one live entry.
 6. All `See also` paths resolve.
 7. No two entries share the same `id`.
 8. `tags` has 1–2 entries, each from the controlled vocabulary above.
+
+**Content density (Phase 7):**
+
+9. `summary` ≤180 chars (soft cap — tighter than the 200-char hard cap so the line stays usable in `dist/CLAUDE.md`).
+10. Body is 15–150 lines. Stubs and sprawl both fail.
+11. Body contains every required H2: `## Rule`, `## Why`, `## How to apply`, `## Example`, `## Anti-pattern`. `## See also` is optional.
+12. The `Example` section is non-empty and contains no `TODO` placeholder.
+13. The body (outside fenced code blocks) contains no system-level personality phrases (`think step by step`, `be thorough`, `be careful`, `carefully`, `make sure to`) — Claude Code already has these at the system level, so repeating them wastes downstream context.
 
 A PR that fails any invariant blocks merge.

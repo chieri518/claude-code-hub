@@ -1,4 +1,5 @@
 import { ANTHROPIC_HOSTS, type Entry } from './schema';
+import { densityCheck } from './density';
 
 export type Issue = { filepath: string; message: string };
 
@@ -89,6 +90,8 @@ export function lint(entries: Entry[]): Issue[] {
         });
       }
     }
+
+    issues.push(...densityCheck(e));
   }
 
   return issues;

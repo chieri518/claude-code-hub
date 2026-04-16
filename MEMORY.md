@@ -123,12 +123,22 @@ Target: a stranger can propose a rule in <10 minutes without reading the full co
 - README above-the-fold polish — 30-sec "what + why" hero; `new-rule` call-out in the contributor path.
 - Screenshot/gif deferred — the repo is CLI-and-markdown, a still image would add little over the code block.
 
-### Phase 7 — Content growth to ~50–100 rules
-Tooling to grow without quality drift.
-- Curation cadence: 3–5 new rules/month, bi-weekly deprecation review.
-- Rule-density linter: flag `summary` > 180 chars, body > 150 lines, missing examples.
-- Tag-based grouping in `hub/README.md` (second view alongside category).
-- New categories emerge from content — no speculative empty dirs.
+### Phase 7 — Content growth to ~50–100 rules (IN PROGRESS)
+Tooling to grow without quality drift. Taken one sub-item at a time.
+
+**Phase 7a ✅ DONE** — rule-density linter (`agents/compile/density.ts`).
+- Checks (all hard-fail, no warning tier): `summary` ≤180 chars (soft cap under the 200 hard cap); body 15–150 lines; required H2s `Rule`/`Why`/`How to apply`/`Example`/`Anti-pattern`; `Example` non-empty and no `TODO`; no system-level personality phrases (`think step by step`, `be thorough`, `be careful`, `carefully`, `make sure to`) outside fenced code blocks.
+- Runs inside `bun run compile`; zero network, zero LLM, zero new deps.
+- All 8 seeds pass unchanged — thresholds calibrated to real content.
+- 7 new tests in `test/compile.test.ts` covering each failure mode + a "all seeds pass" smoke test.
+- Doc-sync: `hub/FORMAT.md` gained invariants 9–13; `agents/compile/README.md` lists `density.ts` in the pipeline.
+
+**Phase 7b (next)** — tag-based view in `hub/README.md` (second table alongside category).
+
+**Phase 7c (next)** — curation cadence + category-emergence policy → docs only (`CONTRIBUTING.md` or new `MAINTAINING.md`).
+
+Deferred from 7a:
+- Check G (deprecated entries must have non-empty `supersedes` or explicit no-replacement note) — revisit when the first real deprecation lands.
 
 ### Phase 8 — Prompt Critique Tool (`tools/critique/`)
 Separate brainstorm pending. Placeholder: CLI that scores a draft prompt against Hub rules, returns a rubric-style critique. Honors the same privacy gate as distillation.
@@ -146,6 +156,11 @@ Separate brainstorm pending. Placeholder: CLI that scores a draft prompt against
 - Time-driven staleness revalidator
 - Community source ingestion with conflict-flagging
 - MCP server wrapping the hub for runtime search
+- **Cross-entry redundancy detection** — two entries saying nearly the same thing waste Claude's context budget. Needs either an LLM pass or careful embedding-similarity heuristics. Deferred from Phase 7 (rule-density linter scope).
+- **`dist/CLAUDE.md` token budget check** — distinct from the existing 200-line cap. Count actual tokens against a target (e.g. ≤4k) so the bundle's cost is explicit. Belongs alongside any future redundancy detection.
+- **Warning tier for lint** — considered and rejected in Phase 7 to keep one mental model. Revisit only if contributor drop-off becomes a measurable problem.
+- **Linter personality-phrase wordlist expansion** — initial list is small and matches only outside fenced code blocks. If false positives cause friction, consider a allowlist file (`lint-allow.txt`) rather than loosening the check.
+- **Phase 7 linter check G (deferred):** deprecated entries must have non-empty `supersedes` OR an explicit "removed with no replacement" note in the body. Deferred until the first real deprecation lands so the check can be calibrated against live data. Revisit when any entry flips to `status: deprecated`.
 - **Prompt Critique Tool ("Grammarly for prompts").** A local-first CLI/editor integration that scores a draft prompt or system-instructions block against the Hub's rules and returns: (1) an overall assessment, (2) strengths, (3) specific weaknesses with suggested rewrites. Motivation — help users write prompts that are more effective, more secure (no accidental secret leakage), and cheaper (fewer tokens, fewer retries from vague prompts). Architecture sketch: the Hub's `rule` entries become the rubric; a small local model or a scoped Claude call produces the critique; runs offline against drafts without sending proprietary code upstream. Design boundary: must honor the same privacy gate as distillation — critiques run locally, outputs land in `.drafts/` or inline, never auto-share.
 
 ---
